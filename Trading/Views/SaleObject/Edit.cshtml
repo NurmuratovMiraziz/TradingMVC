@@ -1,0 +1,51 @@
+﻿@model Trading.Models.SaleObject
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+@using (Html.BeginForm("Update", "SaleObject", FormMethod.Post))
+{
+<h4>SaleObject</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Nomi" class="control-label"></label>
+                <input asp-for="Nomi" class="form-control" />
+                <span asp-validation-for="Nomi" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HozirgiNarxi" class="control-label"></label>
+                <input asp-for="HozirgiNarxi" class="form-control" />
+                <span asp-validation-for="HozirgiNarxi" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SotishFarqi" class="control-label"></label>
+                <input asp-for="SotishFarqi" class="form-control" />
+                <span asp-validation-for="SotishFarqi" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amplituda" class="control-label"></label>
+                <input asp-for="Amplituda" class="form-control" />
+                <span asp-validation-for="Amplituda" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+}
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

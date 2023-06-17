@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Trading.Models.SaleObject>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nomi)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HozirgiNarxi)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SotishFarqi)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amplituda)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nomi)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.HozirgiNarxi)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SotishFarqi)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amplituda)
+            </td>
+            <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">
+                        <button type="button" class="btn btn-success">Details</button>
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@item.Id">
+                        <button type="button" class="btn btn-warning">Edit</button>
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@item.Id">
+                        <button type="button" class="btn btn-danger">Delete</button>
+                    </a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<style>
+    a{
+    all: unset;
+    }
+</style>

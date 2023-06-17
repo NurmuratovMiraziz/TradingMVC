@@ -1,0 +1,245 @@
+﻿@model Trading.Models.TovarSavdo
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<select id="trader-select" class="form-select" aria-label="Default select example">
+    <option selected>Open this select menu</option>
+    @foreach(var item in ViewBag.Traderlar)
+    {
+        <option value="@item.Id">@item.Username (@item.Balansi)</option>
+    }
+</select>
+<input id="soni" class="form-control" type="text" placeholder="Default input" aria-label="default input example">
+
+<p id="mahsulot-nomi"></p>
+<p id="mahsulot-soni"></p>
+<p id="mahsulot-olingan narx"></p>
+<p id="mahsulot-hozirginarx"></p>
+<p id="foyda"></p>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Nomi
+                        </th>
+                        <th>
+                            Sotish
+                        </th>
+                        <th>
+                            Sotib Olish
+                        </th>
+                        <th>
+                            Operations
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="savdo-table">
+                    @foreach (var item in Model.Tovarlar)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Nomi)
+                            </td>
+                            <td>
+                                <p id="sotish-@item.Id">@Html.DisplayFor(modelItem => item.HozirgiNarxi)</p>
+                            </td>
+                            <td>
+                                @{
+                                    int a = item.SotishFarqi + item.HozirgiNarxi;
+                                    <p id="olish-@item.Id">@Html.DisplayFor(modelItem => a)</p>
+                                }
+                            </td>
+                            <td>
+                                <button onclick="Sotish(@item.Id)" type="button" class="btn btn-danger">Sell</button>
+                                <button onclick="SotibOlish(@item.Id)" type="button" class="btn btn-success">Buy</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Nomi
+                        </th>
+                        <th>
+                            Buy/Sell
+                        </th>
+                        <th>
+                            Soni
+                        </th>
+                        <th>
+                            Sotib olingan narx
+                        </th>
+                        <th>
+                            Hozirgi narx
+                        </th>
+                        <th>
+                            Foyda
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="savdo-table">
+                    @foreach (var item in Model.Savdolar)
+                    {
+                        <tr>
+                            <td>
+                                <p id="savdo-nomi-@item.Id">@Html.DisplayFor(modelItem => item.SaleObject.Nomi)</p>
+                            </td>
+                            <td>
+                                <p id="savdo-turi-@item.Id"></p>
+                            </td>
+                            <td>
+                                <p id="sotib-olingan-soni-@item.Id">@Html.DisplayFor(modelItem => item.XaridSoni)</p>
+                            </td>
+                            <td>
+                                <p id="sotib-olingan-@item.Id">@Html.DisplayFor(modelItem => item.XaridNarxi)</p>
+                            </td>
+                            <td>
+                                <p id="hozirgi-narx-@item.Id">@Html.DisplayFor(modelItem => item.SaleObject.HozirgiNarxi)</p>
+                            </td>
+                            <td>
+                                <p id="foyda-@item.Id">@Html.DisplayFor(modelItem => item.Foyda)</p>
+                            </td>
+                            <td>
+                                <button onclick="Yopish(@item.Id)" type="button" class="btn btn-danger">Close</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    a{
+        all: unset;
+    }
+</style>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+
+    setInterval(RefreshPrices, 600);
+
+    async function RefreshPrices() {
+        
+        let hozirginarxlar = '';
+
+        await axios({
+            method: 'get',
+            url: '/Savdo/RefreshPrice/'
+            
+        })
+            .then(response => (hozirginarxlar = response.data))
+            .catch(function (error) {
+                console.log(error);
+            });
+        for (let i = 0, container = document.getElementById("savdo-table"); i < hozirginarxlar.tovarlar.length; i++) {
+            const narxi = hozirginarxlar.tovarlar[i];
+
+            document.getElementById("sotish-" + narxi.id).innerHTML = narxi.hozirgiNarxi;
+            document.getElementById("olish-" + narxi.id).innerHTML = narxi.hozirgiNarxi + narxi.sotishFarqi;
+
+      }
+        for (let i = 0, container = document.getElementById("savdo-table"); i < hozirginarxlar.savdo.length; i++) {
+            const narxi = hozirginarxlar.savdo[i];
+
+            document.getElementById("savdo-nomi-" + narxi.id).innerHTML = narxi.saleObject.nomi;
+            document.getElementById("sotib-olingan-soni-" + narxi.id).innerHTML = narxi.xaridSoni;
+            document.getElementById("sotib-olingan-" + narxi.id).innerHTML = narxi.xaridNarxi;
+            document.getElementById("foyda-" + narxi.id).innerHTML = narxi.foyda;
+            
+            if (narxi.sotibOlindi == true){
+                document.getElementById("savdo-turi-" + narxi.id).innerHTML = "Buy";
+                document.getElementById("savdo-turi-" + narxi.id).style.color = 'green';
+                document.getElementById("hozirgi-narx-" + narxi.id).innerHTML = narxi.saleObject.hozirgiNarxi;
+            }
+            else {
+                document.getElementById("savdo-turi-" + narxi.id).innerHTML = "Sell";
+                document.getElementById("savdo-turi-" + narxi.id).style.color = 'red';
+                document.getElementById("hozirgi-narx-" + narxi.id).innerHTML = narxi.saleObject.hozirgiNarxi + narxi.saleObject.sotishFarqi;
+            }
+        }
+    }
+
+    async function Sotish(id){
+        var done = false;
+        var traderId = document.getElementById("trader-select").value;
+        var soni = document.getElementById("soni").value;
+        await axios({
+            method: 'get',
+            url: '/Savdo/Sotish/',
+            params:{
+                objectId : id,
+                traderId: traderId,
+                soni : soni
+            }
+        })
+            .then(response => (done = true))
+            .catch(function (error) {
+                console.log(error);
+            });
+            console.log(done);
+        location.reload();
+    }
+    async function SotibOlish(id) {
+        var done = false;
+        var traderId = document.getElementById("trader-select").value;
+        var soni = document.getElementById("soni").value;
+        await axios({
+            method: 'get',
+            url: '/Savdo/SotibOlish/',
+            params:{
+                objectId : id,
+                traderId: traderId,
+                soni : soni
+            }
+        })
+            .then(response => (done = true))
+            .catch(function (error) {
+                console.log(error);
+            });
+            console.log(done);
+        location.reload();
+    }
+
+    async function Yopish(id) {
+        var done = false;
+        
+        await axios({
+            method: 'get',
+            url: '/Savdo/Yopish/',
+            params: {
+                id: id
+            }
+        })
+            .then(response => (done = true))
+            .catch(function (error) {
+                console.log(error);
+            });
+        console.log(done);
+        location.reload();
+    }
+</script>
